@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Book from "../models/bookModel";
 
-// create book -> api/books
+// create book -> /api/books
 
 export const createBook = async (req: Request, res: Response) => {
    try {
@@ -22,7 +22,7 @@ export const createBook = async (req: Request, res: Response) => {
 }
 
 
-// get all books -> api/books
+// get all books -> /api/books
 
 export const getBooks = async (req: Request, res: Response) => {
    try {
@@ -54,7 +54,7 @@ export const getBooks = async (req: Request, res: Response) => {
 }
 
 
-// get single book -> api/books/:bookId
+// get single book -> /api/books/:bookId
 
 export const getSingleBook = async (req: Request, res: Response) => {
    try {
@@ -83,7 +83,7 @@ export const updateBook = async (req: Request, res: Response) => {
       const bookId = req.params.bookId;
       const updatedDoc = req.body || {};
 
-      if(!updatedDoc){
+      if (!updatedDoc) {
          res.status(404).json({
             success: false,
             message: "Book data is missing!"
@@ -105,3 +105,35 @@ export const updateBook = async (req: Request, res: Response) => {
       })
    }
 }
+
+
+// delete a book -> /api/books/:bookId
+
+export const deleteBook = async (req: Request, res: Response) => {
+   try {
+      const bookId = req.params.bookId;
+
+      await Book.findByIdAndDelete(bookId);
+
+      res.status(200).json({
+         success: true,
+         message: "Book deleted successfully",
+         data: null
+      })
+   } catch (error) {
+      res.status(500).json({
+         success: false,
+         message: 'Failed to delete book'
+      })
+   }
+}
+
+
+
+
+
+
+
+
+
+
