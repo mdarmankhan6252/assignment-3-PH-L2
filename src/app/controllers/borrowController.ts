@@ -11,7 +11,7 @@ export const borrowABook = async (req: Request, res: Response) => {
       const { book, quantity, dueDate } = new Borrow(req.body);
 
       if (!mongoose.Types.ObjectId.isValid(book)) {
-         return res.status(400).json({
+         res.status(400).json({
             success: false,
             message: "Invalid Book ID format",
          })
@@ -21,20 +21,25 @@ export const borrowABook = async (req: Request, res: Response) => {
       console.log(bookDoc);
 
       if(!bookDoc){
-        return res.status(404).json({
+        res.status(404).json({
             success: false, 
             message: 'Book Not found!',
          })
       }
 
-      if(bookDoc?.copies < quantity){
-         return res.status(400).json({
+      if(bookDoc && bookDoc?.copies < quantity){
+         res.status(400).json({
             success: false, 
             message:  "Not enough copies available"
          })
       }
 
-      bookDoc.copies -= quantity;
+      if(bookDoc){
+         bookDoc.copies = bookDoc.copies - quantity;
+
+      }
+
+      // bookDoc && 
 
       bookDoc?.checkAvailability();
 
