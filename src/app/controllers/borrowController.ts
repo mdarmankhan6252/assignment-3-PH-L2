@@ -20,21 +20,21 @@ export const borrowABook = async (req: Request, res: Response) => {
       const bookDoc = await Book.findById(book);
       console.log(bookDoc);
 
-      if(!bookDoc){
-        res.status(404).json({
-            success: false, 
+      if (!bookDoc) {
+         res.status(404).json({
+            success: false,
             message: 'Book Not found!',
          })
       }
 
-      if(bookDoc && bookDoc?.copies < quantity){
+      if (bookDoc && bookDoc?.copies < quantity) {
          res.status(400).json({
-            success: false, 
-            message:  "Not enough copies available"
+            success: false,
+            message: "Not enough copies available"
          })
       }
 
-      if(bookDoc){
+      if (bookDoc) {
          bookDoc.copies = bookDoc.copies - quantity;
 
       }
@@ -68,24 +68,79 @@ export const borrowABook = async (req: Request, res: Response) => {
 
 // borrow a book -> /api/borrow
 
+// export const getBorrowBooksSummary = async (req: Request, res: Response) => {
+//    try {
+//       const data = await Borrow.find({}, { quantity: 1 })
+//          .populate({
+//             path: 'book',
+//             select: 'title isbn'
+//          })
+
+//       res.status(200).json({
+//          success: true,
+//          message: "Borrowed books summary retrieved successfully",
+//          data
+//       })
+//    } catch (error) {
+//       res.status(500).json({
+//          success: false,
+//          message: "Failed to fetch borrow data."
+//       })
+//    }
+// }
+
+
+
+// borrow a book -> /api/borrow
+
 export const getBorrowBooksSummary = async (req: Request, res: Response) => {
    try {
-
-      const data = await Borrow.find({}, { quantity: 1 })
-         .populate({
-            path: 'book',
-            select: 'title isbn'
-         })
+      const summary = await Borrow.aggregate([
+         {
+            $group: {
+               _id: '$book',
+               totalQuantity: { $sum: "$quantity" }
+            }
+         },
+         {
+            $lookup: {
+               from: "books",
+               localField: "_id",
+               foreignField: "_id",
+               as: "bookDetails"
+            }
+         },
+         {
+            $unwind: "$bookDetails"
+         },
+         {
+            $project: {
+               _id: 0,
+               book: {
+                  title: "$bookDetails.title",
+                  isbn: "$bookDetails.isbn"
+               },
+               totalQuantity: 1
+            }
+         }
+      ]);
 
       res.status(200).json({
          success: true,
-         message: "Borrowed books summary retrieved successfully",
-         data
+         message: "Borrowed books summary retrieved successfully!",
+         data: summary
       })
+
    } catch (error) {
       res.status(500).json({
          success: false,
-         message: "Failed to fetch borrow data."
+         message: "Failed to fetch borrow summary",
+         error: error instanceof Error ? error.message : error
       })
    }
 }
+
+
+
+
+
