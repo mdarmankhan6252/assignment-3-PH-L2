@@ -81,14 +81,7 @@ export const getSingleBook = async (req: Request, res: Response) => {
 export const updateBook = async (req: Request, res: Response) => {
    try {
       const bookId = req.params.bookId;
-      const updatedDoc = req.body || {};
-
-      if (!updatedDoc) {
-         res.status(404).json({
-            success: false,
-            message: "Book data is missing!"
-         })
-      }
+      const updatedDoc = req.body;
 
       const doc = await Book.findByIdAndUpdate(bookId, updatedDoc, { new: true })
 

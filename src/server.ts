@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './app/config/db';
 import bookRouter from './app/routes/bookRoute';
+import borrowRouter from './app/routes/borrowRoute';
 
 const app = express();
 
@@ -15,9 +16,11 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+
 //application routes
 
 app.use('/api/books', bookRouter)
+app.use('/api/borrow', borrowRouter)
 
 
 
